@@ -129,6 +129,9 @@ def path_text_box_textChanged():
     print(save_path)
 
 
+if "saves" not in os.listdir("./"):
+    os.mkdir("./saves")
+
 scan_saves()
 items = []
 for save in valid_saves:
