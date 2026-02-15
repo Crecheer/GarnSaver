@@ -174,7 +174,7 @@ for save in valid_saves:
 app = QApplication([])
 
 window = QWidget(windowTitle="GarnSaver")
-window.setWindowIcon(QIcon("./icon.png"))
+window.setWindowIcon(QIcon("./assets/icon.png"))
 
 
 layout = QGridLayout(window)
