@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+from datetime import datetime
 from PyQt6.QtWidgets import QInputDialog, QApplication, QWidget,  QGridLayout, QListWidget, QPushButton, QLineEdit
 from PyQt6.QtGui import QIcon
 
@@ -34,7 +35,6 @@ def remove_save(name):
             valid = True
     if valid:
         shutil.rmtree(f"./saves/{name}")
-        print(f"Removed save {name}")
     else:
         print(f"Save {name} doesn't exist!")
 
@@ -42,7 +42,8 @@ def remove_save(name):
 def create_save(name):
     os.mkdir(f"./saves/{name}")
     d = {
-        "name": name
+        "name": name,
+        "date_saved": datetime.now().strftime("%m-%d-%y %H:%M:%S")
     }
     str = json.dumps(d)
     with open(f"./saves/{name}/save.json", "w") as f:
@@ -89,7 +90,7 @@ def scan_saves():
             with open(f"./saves/{save}/save.json") as f:
                 d = json.load(f)
                 valid_saves.append(
-                    {"path": f"./saves/{save}", "name": d["name"]})
+                    {"path": f"./saves/{save}", "name": d["name"], "date_saved": d["date_saved"]})
 
 
 if "backup" not in os.listdir(save_path):
