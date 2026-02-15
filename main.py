@@ -39,11 +39,11 @@ def remove_save(name):
         print(f"Save {name} doesn't exist!")
 
 
-def create_save(name):
+def create_save(name, date_saved):
     os.mkdir(f"./saves/{name}")
     d = {
         "name": name,
-        "date_saved": datetime.now().strftime("%m-%d-%y %H:%M:%S")
+        "date_saved": date_saved
     }
     str = json.dumps(d)
     with open(f"./saves/{name}/save.json", "w") as f:
@@ -79,6 +79,26 @@ def load_save(name):
                 save_path + "saveTrophy.garnular")
 
 
+def rename_save(name, newname):
+    if newname not in os.listdir("./saves"):
+        os.mkdir(f"./saves/{newname}")
+    shutil.copy(f"./saves/{name}/saveData.garnular", f"./saves/{newname}")
+    shutil.copy(f"./saves/{name}/saveTrophy.garnular", f"./saves/{newname}")
+    date_saved = None
+    with open(f"./saves/{name}/save.json", "r") as f:
+        d = json.load(f)
+        date_saved = d["date_saved"]
+
+    d = {
+        "name": newname,
+        "date_saved": date_saved
+    }
+    str = json.dumps(d)
+    with open(f"./saves/{newname}/save.json", "w") as f:
+        f.write(str)
+    remove_save(name)
+
+
 def scan_saves():
     global valid_saves
     # search for "valid" saves (just checks if it has the save.json file)
@@ -101,9 +121,9 @@ if "backup" not in os.listdir(save_path):
 # qt functions
 def save_button_clicked():
     text, ok = QInputDialog.getText(
-        window, "Dialog", "Save name: ")
+        window, "Dialog", "Save name:")
     if ok and text:
-        create_save(text)
+        create_save(text, datetime.now().strftime("%m-%d-%y %H:%M:%S"))
         list_widget.addItem(text)
 
 
@@ -121,6 +141,19 @@ def delete_button_clicked():
         item = list_widget.takeItem(row)
         remove_save(item.text())
         del item
+
+
+def rename_button_clicked():
+    text, ok = QInputDialog.getText(
+        window, "Dialog", "New name:"
+    )
+    if ok and text:
+        row = list_widget.currentRow()
+        if row >= 0:
+            item = list_widget.takeItem(row)
+            rename_save(item.text(), text)
+            del item
+            list_widget.addItem(text)
 
 
 def path_text_box_textChanged():
@@ -166,11 +199,15 @@ load_button.clicked.connect(load_button_clicked)
 delete_button = QPushButton("Delete")
 delete_button.clicked.connect(delete_button_clicked)
 
+rename_button = QPushButton("Rename")
+rename_button.clicked.connect(rename_button_clicked)
+
 layout.addWidget(path_text_box, 4, 1, 4, 1)
 layout.addWidget(list_widget, 0, 0, 4, 1)
 layout.addWidget(save_button, 0, 1)
 layout.addWidget(load_button, 1, 1)
 layout.addWidget(delete_button, 2, 1)
+layout.addWidget(rename_button, 3, 1)
 
 window.show()
 
